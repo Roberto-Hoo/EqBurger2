@@ -7,13 +7,32 @@ double funcao2(double x) {
 }
 
 double funcao(int n, double v, double x) {
-    return (2*cos(n * M_PI * x) * exp((cos(M_PI * x) - 1) / (2 * M_PI * v)));
+    return (2 * cos(n * M_PI * x) * exp((cos(M_PI * x) - 1) / (2 * M_PI * v)));
 }
+
+double soma1(int MM, double v, double x, double t, double C[]) {
+    double soma = 0.0;
+    for (int i = 1; i <= MM; i++)
+        soma += C[i] * exp(-i * i * M_PI * M_PI * v * t) * i * sin(i * M_PI * x);
+    return soma;
+}
+
+double soma2(int MM, double v, double x, double t, double C[]) {
+    double soma = 0.0;
+    soma += C[0];
+    for (int i = 1; i <= MM; i++)
+        soma += C[i] * exp(-i * i * M_PI * M_PI * v * t) * cos(i * M_PI * x);
+    return soma;
+}
+
 
 bool debug = false;
 double xIni = 0.0;
 double xFim = 1.0;
 double soma = 0.0;
+int MM = 20;
+int n;
+double v = 1.0;
 int NN = 1000;
 double h;
 int m;
@@ -86,21 +105,18 @@ int main() {
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 
-    xIni = 0.0;
-    xFim = 1.0;
-    soma = 0.0;
-    NN = 1000;
-    int n;
-    double v = 1.0;
-    double soma3;
-
-    soma3 = 0.5*integra(0, 1.0, 1000);
+    double C[MM];
+    C[0] = 0.5 * integra(0, v, NN);
+    for (int i = 1; i <= MM; i++)
+        C[i] = integra(i, v, NN);
     if (world_rank == 0) {
-        printf("\nValor da integral em  C%d  = %20.12f", 0, soma3);
-    }
-    soma3 =  integra(1, 1.0, 1000);
-    if (world_rank == 0) {
-        printf("\nValor da integral em  C%d  = %20.12f", 1, soma3);
+        for (int i = 0; i <= MM; i++)
+            printf("\nValor da integral em  C%d  = %20.17es", i, C[i]);
+        double u_x_t;
+        for (int i=1;i<10;i++) {
+            u_x_t = 2 * M_PI * v * soma1(MM, v,(double)(i)*0.1, 0.5, C) / soma2(MM, v, (double)(i)*0.1, 0.5, C);
+            printf("\nValor de U(x=%3.1f; t=0.5) = %7.4es", i*0.1,u_x_t);
+        }
     }
     MPI_Finalize();
 
