@@ -104,7 +104,8 @@ int main() {
     MPI_Init(NULL, NULL); // Inicializa o MPI
     MPI_Comm_size(MPI_COMM_WORLD, &world_size);
     MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
-
+    double t = 2.3;
+    v = 0.1;
     double C[MM];
     C[0] = 0.5 * integra(0, v, NN);
     for (int i = 1; i <= MM; i++)
@@ -113,9 +114,9 @@ int main() {
         for (int i = 0; i <= MM; i++)
             printf("\nValor da integral em  C%d  = %20.17es", i, C[i]);
         double u_x_t;
-        for (int i=1;i<10;i++) {
-            u_x_t = 2 * M_PI * v * soma1(MM, v,(double)(i)*0.1, 0.5, C) / soma2(MM, v, (double)(i)*0.1, 0.5, C);
-            printf("\nValor de U(x=%3.1f; t=0.5) = %7.4es", i*0.1,u_x_t);
+        for (int i = 1; i < 10; i++) {
+            u_x_t = 2 * M_PI * v * soma1(MM, v, (double) (i) * 0.1, t, C) / soma2(MM, v, (double) (i) * 0.1, t, C);
+            printf("\nValor de U(x=%3.1f; t=0.5) = %7.4es", i * 0.1, u_x_t);
         }
     }
     MPI_Finalize();
